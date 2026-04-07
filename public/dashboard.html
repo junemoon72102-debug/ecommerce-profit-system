@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+<h2>Dashboard</h2>
+
+<p>Total Profit: <span id="profit">0</span></p>
+<p>Total Products: <span id="count">0</span></p>
+
+<a href="/products.html">Go to Products</a>
+
+<script>
+
+const user = localStorage.getItem("user");
+
+async function load() {
+
+  const res = await fetch(`/api/products?user=${user}`);
+  const data = await res.json();
+
+  let totalProfit = 0;
+
+  data.forEach(p => {
+
+    const profit =
+      (p.price * p.quantity) -
+      ((p.cost * p.quantity) + p.ads);
+
+    totalProfit += profit;
+  });
+
+  profit.innerText = totalProfit.toFixed(2);
+  count.innerText = data.length;
+}
+
+load();
+
+</script>
+
+</body>
+</html>

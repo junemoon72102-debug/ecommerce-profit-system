@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Products</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<div class="sidebar">
+  <h3>Menu</h3>
+  <a href="dashboard.html">Dashboard</a>
+  <a href="products.html">Products</a>
+</div>
+
+<div class="main">
+
+<h2>Add Product</h2>
+
+<input id="name" placeholder="Name"><br><br>
+<input id="cost" type="number" placeholder="Cost"><br><br>
+<input id="ads" type="number" placeholder="Ads"><br><br>
+<input id="price" type="number" placeholder="Price"><br><br>
+<input id="quantity" type="number" placeholder="Quantity"><br><br>
+
+<button onclick="add()">Add</button>
+
+<hr>
+
+<div id="list"></div>
+
+</div>
+
+<script>
+
+function isValidNumber(value) {
+  return !isNaN(value) && value !== "";
+}
+
+async function add() {
+
+  if (
+    !name.value ||
+    !isValidNumber(cost.value) ||
+    !isValidNumber(price.value) ||
+    !isValidNumber(quantity.value)
+  ) {
+    alert("Fill all required fields correctly");
+    return;
+  }
+
+  await fetch("/api/products", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      name: name.value,
+      cost: Number(cost.value),
+      ads: Number(ads.value || 0),
+      price: Number(price.value),
+      quantity: Number(quantity.value)
+    })
+  });
+
+  load();
+}
+
+async function load() {
+
+  const res = await fetch("/api/products");
+  const data = await res.json();
+
+  let html = "";
+
+  data.forEach(p => {
+
+    const profit =
+      (Number(p.price || 0) * Number(p.quantity || 0)) -
+      ((Number(p.cost || 0) * Number(p.quantity || 0)) + Number(p.ads || 0));
+
+    html += `
+      <div>
+        <b>${p.name}</b><br>
+        Profit: ${profit.toFixed(2)}
+        <hr>
+      </div>
+    `;
+  });
+
+  document.getElementById("list").innerHTML = html;
+}
+
+load();
+
+</script>
+
+</body>
+</html>
