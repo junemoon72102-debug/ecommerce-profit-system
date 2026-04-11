@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Products</title>
+</head>
+
+<body style="font-family: Arial; background:#f5f5f5;">
+
+<h2>Products</h2>
+
+<input id="name" placeholder="Name"><br><br>
+<input id="cost" placeholder="Cost"><br><br>
+<input id="price" placeholder="Selling Price"><br><br>
+
+<button onclick="addProduct()">Add Product</button>
+
+<hr>
+
+<div id="list"></div>
+
+<script>
+
+async function addProduct() {
+  console.log("ADD CLICKED");
+
+  const token = localStorage.getItem("token");
+
+  const name = document.getElementById("name").value;
+  const cost = document.getElementById("cost").value;
+  const price = document.getElementById("price").value;
+
+  try {
+    const res = await fetch("/api/products", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": token
+      },
+      body: JSON.stringify({
+        name,
+        cost,
+        price
+      })
+    });
+
+    const data = await res.json();
+    console.log(data);
+
+    loadProducts();
+
+  } catch (err) {
+    console.log(err);
+    alert("Error adding product");
+  }
+}
+
+async function loadProducts() {
+  const token = localStorage.getItem("token");
+
+  const res = await fetch("/api/products", {
+    headers: {
+      "Authorization": token
+    }
+  });
+
+  const data = await res.json();
+
+  const list = document.getElementById("list");
+  list.innerHTML = "";
+
+  data.forEach(p => {
+    list.innerHTML += `
+      <div>
+        ${p.name} - Profit: ${p.price - p.cost}
+      </div>
+    `;
+  });
+}
+
+loadProducts();
+
+</script>
+
+</body>
+</html>
